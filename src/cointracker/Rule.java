@@ -33,8 +33,10 @@ public class Rule {
         api = new APIwrapper(RTYPE,COIN,CURR);
         currState = getCurrentState();
         newState = currState;
-        
         scheduler = Executors.newScheduledThreadPool(1);
+    }
+    
+    public void start(){
         scheduler.scheduleAtFixedRate(new PeriodicChecker(),REFRESH_INTERVAL,
                 REFRESH_INTERVAL,TimeUnit.SECONDS);
     }

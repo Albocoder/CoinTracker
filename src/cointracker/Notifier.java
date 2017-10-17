@@ -12,7 +12,8 @@ public class Notifier {
     
     public Notifier(){
         readRules();
-        
+        for (Rule r:rulez)
+            r.start();
     }
     
     
