@@ -74,7 +74,7 @@ public class Rule {
         public void run() {
             boolean check = checkRule();
             if (check){
-                // notify
+                // notify 
             }
         }
     }
