@@ -1,5 +1,8 @@
 package cointracker;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class HistoryMaintainer {
@@ -8,8 +11,8 @@ public class HistoryMaintainer {
     private final String period;
     private final String rate_type;
     
-    private APIwrapper w;
-    private Object[][] time_amount_table;
+    private final APIwrapper w;
+    private ArrayList<HistorySampleContainer> historyArray;
             
     public HistoryMaintainer(String c1,String c2, String p, String rtype){
         curr = c1;
@@ -18,11 +21,18 @@ public class HistoryMaintainer {
         rate_type = rtype;
         
         w = new APIwrapper("historic",coin,curr,p);
-        time_amount_table = null;
+        historyArray = null;
     }
         
     public void update(){
         JSONObject jo = w.getRates();
-        
+        JSONArray a = jo.getJSONObject("data").getJSONArray("prices");
+        historyArray = new ArrayList<HistorySampleContainer>();
+        Iterator i = a.iterator();
+        while(i.hasNext()){
+            JSONObject tmpo = (JSONObject) i.next();
+            HistorySampleContainer tmpHSC = new HistorySampleContainer(
+                    tmpo.getDouble("price") , tmpo.getString("time") );
+        }
     }
 }
