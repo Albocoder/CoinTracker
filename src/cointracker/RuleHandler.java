@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class Notifier {
+public class RuleHandler {
     private Rule[] rulez;
     private final String rulezfname = "rulefile.bin";
     
-    public Notifier(){
+    public RuleHandler(){
         readRules();
         for (Rule r:rulez)
             r.start();
