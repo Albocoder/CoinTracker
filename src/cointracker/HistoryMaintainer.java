@@ -6,19 +6,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class HistoryMaintainer {
-    private final String curr;
-    private final String coin;
-    private final String period;
-    private final String rate_type;
+    public final String curr;
+    public final String coin;
+    public final String period;
     
     private final APIwrapper w;
     private ArrayList<HistorySampleContainer> historyArray;
             
-    public HistoryMaintainer(String c1,String c2, String p, String rtype){
+    public HistoryMaintainer(String c1,String c2, String p){
         curr = c1;
         coin = c2;
         period = p;
-        rate_type = rtype;
         
         w = new APIwrapper("historic",coin,curr,p);
         historyArray = null;
@@ -35,4 +33,27 @@ public class HistoryMaintainer {
                     tmpo.getDouble("price") , tmpo.getString("time") );
         }
     }
+    public double getMax(){
+        Iterator i = historyArray.iterator();
+        double max = 0.0;
+        while(i.hasNext()){
+            HistorySampleContainer c = (HistorySampleContainer)i.next();
+            if (max < c.amount)
+                max = c.amount;
+        }
+        return max;
+    }
+    
+    public double getMin(){
+        Iterator i = historyArray.iterator();
+        double min = 0.0;
+        while(i.hasNext()){
+            HistorySampleContainer c = (HistorySampleContainer)i.next();
+            if (min > c.amount)
+                min = c.amount;
+        }
+        return min;
+    }
+    
+    public ArrayList<HistorySampleContainer> getHistory(){return historyArray;}
 }
