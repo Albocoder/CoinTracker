@@ -1,11 +1,9 @@
 package GUI;
 
 import java.awt.*;
-import java.awt.event.*;
-import java.lang.reflect.*;
 import javax.swing.*;
-import static java.awt.GraphicsDevice.WindowTranslucency.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.Vector;
 
 public class Notification extends JPanel{
     // constrants
@@ -23,17 +21,27 @@ public class Notification extends JPanel{
     private int order;
     private int xPos,yPos;
     private int TTL;
-   
+    private Vector<Notification> allNotification;
     
     public Notification(String ty,String ti,String msg){
-        this(ty,ti,msg,1,10);
+        this(null,ty,ti,msg,1,10);
     }
-    public Notification(String ty,String ti,String msg,int o,int life) {
+    public Notification(String ty,String ti,String msg,int o,int life){
+        this(null,ty,ti,msg,o,life);
+    }
+    public Notification(Vector<Notification> n,String ty,String ti,String msg){
+        this(n,ty,ti,msg,1,10);
+    }
+    public Notification(Vector<Notification> n,String ty,String ti,String msg,int o,int life) {
         super(true);
         type = ty;
         TTL = life;
         order = o;
-        
+        allNotification = n;
+        /*
+        URL url = getClass().getResource("/foo/bar/sound.wav");
+        AudioClip clip = Applet.newAudioClip(url);
+        */
         title = new JLabel("<html><body><font size='5'>"+ti+"</font></body></html>");
         text = new JLabel("<html><body><font size='2'>"+msg+"</font></body></html>");
         
@@ -50,7 +58,7 @@ public class Notification extends JPanel{
     }
    
     // colorize according to the notification type
-    final void colorize(){
+    private void colorize(){
         Color panelBackColor;
         Color titleColor;
         Color textColor;
@@ -77,20 +85,15 @@ public class Notification extends JPanel{
             
             
     // constructor of the frame
-    public final void makeFrame(){
+    private void makeFrame(){
         f = new JFrame("TranslucentWindow");
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment()
-                .getDefaultScreenDevice();
-        if (!gd.isWindowTranslucencySupported(TRANSLUCENT)) {
-            setTranslucency( f );
-        }
         f.setUndecorated( true );
         f.setBackground(new Color(0f, 0f, 0f, 1f / 3f));
         f.setSize(new Dimension(W,H));     // can be made screen dependant
-        f.addMouseListener(new ML());
         f.setAlwaysOnTop(true);
         f.setShape(new RoundRectangle2D.Double(0, 0, W, H, 20, 20));
         f.add(this);
+        f.setAutoRequestFocus(false);
         reorder();
     }
     
@@ -112,6 +115,9 @@ public class Notification extends JPanel{
     
     // showing and hiding notification
     public void showUp(boolean autokill) {
+        /*
+        clip.play();
+        */
         reorder();
         if(autokill){
             Thread t = new Thread(new AutoKiller());
@@ -124,62 +130,42 @@ public class Notification extends JPanel{
     }
     public void dismiss(){
         try {
-            if(f != null)
+            if(f != null){
                 this.fadeOut(f);
-            else
+                if(allNotification == null)
+                    return;
+                int myplace = allNotification.indexOf(this);
+                if(myplace < allNotification.size()-1){
+                    for(int i = myplace+1; i < allNotification.size(); i++){
+                        allNotification.elementAt(i).setOrder(i);
+                    }
+                }
+                allNotification.remove(this);
+            }else
                 return;
         } catch (InterruptedException ex) {f.setVisible(false);}
         f = null;
     }
     
     // supported animations
+    @SuppressWarnings("SleepWhileInLoop")
     public void fadeIn(JFrame f) throws InterruptedException{
         f.setOpacity(0.1f);
         f.setVisible(true);
-        f.setOpacity(0.2f);
-        Thread.sleep(100);
-        f.setOpacity(0.3f);
-        Thread.sleep(100);
-        f.setOpacity(0.4f);
-        Thread.sleep(100);
-        f.setOpacity(0.5f);
-        Thread.sleep(100);
-        f.setOpacity(0.6f);
-        Thread.sleep(100);
-        f.setOpacity(0.7f);
-        Thread.sleep(100);
-        f.setOpacity(0.8f);
+        for (float o = 0.2f;o <= 0.8;o+=0.1f){
+            f.setOpacity(o);
+            Thread.sleep(100);
+        }
         f.revalidate();
     }
-    public void fadeOut(JFrame f) throws InterruptedException{
-        f.setOpacity(0.7f);
-        Thread.sleep(100);
-        f.setOpacity(0.6f);
-        Thread.sleep(100);
-        f.setOpacity(0.5f);
-        Thread.sleep(100);
-        f.setOpacity(0.4f);
-        Thread.sleep(100);
-        f.setOpacity(0.3f);
-        Thread.sleep(100);
-        f.setOpacity(0.2f);
-        Thread.sleep(100);
-        f.setOpacity(0.1f);
-        Thread.sleep(100);
-        f.setVisible(false);
-    } 
     
-    // setting the translucency
-    private static void setTranslucency( Window window){
-        try {
-               Class<?> awtUtilitiesClass = Class.forName("com.sun.awt.AWTUtilities");
-               Method mSetWindowOpacity = awtUtilitiesClass.getMethod("setWindowOpacity", Window.class, float.class);
-               mSetWindowOpacity.invoke(null, window, Float.valueOf(0.85f));
-            } catch (NoSuchMethodException | SecurityException |
-                    ClassNotFoundException | IllegalAccessException |
-                    IllegalArgumentException | InvocationTargetException ex) {
-               ex.printStackTrace();
-            }
+    @SuppressWarnings("SleepWhileInLoop")
+    public void fadeOut(JFrame f) throws InterruptedException{
+        for (float o = 0.7f;o >= 0.1;o-=0.1f){
+            f.setOpacity(o);
+            Thread.sleep(100);
+        }
+        f.setVisible(false);
     }
     
     // getters
@@ -187,15 +173,6 @@ public class Notification extends JPanel{
     public int getyPos(){return yPos;}
     
     // inner classes
-    private class ML extends MouseAdapter{
-        @Override
-        public void mouseReleased(MouseEvent e){
-            //Point p = e.getPoint();
-            //double x = p.getX();
-            //double y = p.getY();
-            dismiss();
-        }
-    }
     private class AutoKiller implements Runnable {
         @Override
         public void run() {
