@@ -3,45 +3,50 @@ package GUI;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.geom.RoundRectangle2D;
-import java.util.Vector;
 
 public class Notification extends JPanel{
     // constrants
     private final int W = 250;
     private final int H = 60;
-    private final int TEXT_MAX_CHAR = 20;
-    private final int TITLE_MAX_CHAR = 10;
+    private final int TEXT_MAX_CHAR = 33;
+    private final int TITLE_MAX_CHAR = 15;
     // UI related
     private JFrame f;
     private JLabel text;
     private JLabel title;
     private JPanel textholder;
     //properties
-    private String type;    //danger,warning,success
+    private String type;        //danger,warning,success
     private int order;
+    private String position;
+    private final int X_PADDING,Y_PADDING;
     private int xPos,yPos;
-    private int TTL;
-    private Vector<Notification> allNotification;
     
     public Notification(String ty,String ti,String msg){
-        this(null,ty,ti,msg,1,10);
+        this(ty,ti,msg,"bottomright",10,10,1);
     }
-    public Notification(String ty,String ti,String msg,int o,int life){
-        this(null,ty,ti,msg,o,life);
+    public Notification(String ty,String ti,String msg,String p){
+        this(ty,ti,msg,p,10,10,1);
     }
-    public Notification(Vector<Notification> n,String ty,String ti,String msg){
-        this(n,ty,ti,msg,1,10);
+    public Notification(String ty,String ti,String msg,String p,int xpad,int ypad){
+        this(ty,ti,msg,p,xpad,ypad,1);
     }
-    public Notification(Vector<Notification> n,String ty,String ti,String msg,int o,int life) {
+    public Notification(String ty,String ti,String msg,String p,int xpad,int ypad,int o) {
         super(true);
         type = ty;
-        TTL = life;
         order = o;
-        allNotification = n;
+        position = p;
+        X_PADDING = xpad;
+        Y_PADDING = ypad;
         /*
         URL url = getClass().getResource("/foo/bar/sound.wav");
         AudioClip clip = Applet.newAudioClip(url);
         */
+        if(ti.length()> TITLE_MAX_CHAR+3)
+            ti = ti.substring(0,TITLE_MAX_CHAR-3)+"...";
+        if(msg.length()> TEXT_MAX_CHAR+3)
+            msg = msg.substring(0,TEXT_MAX_CHAR-3)+"...";
+        
         title = new JLabel("<html><body><font size='5'>"+ti+"</font></body></html>");
         text = new JLabel("<html><body><font size='2'>"+msg+"</font></body></html>");
         
@@ -81,8 +86,7 @@ public class Notification extends JPanel{
         textholder.setBackground(panelBackColor);
         text.setForeground(textColor);
         title.setForeground(titleColor);
-    }
-            
+    }          
             
     // constructor of the frame
     private void makeFrame(){
@@ -94,35 +98,58 @@ public class Notification extends JPanel{
         f.setShape(new RoundRectangle2D.Double(0, 0, W, H, 20, 20));
         f.add(this);
         f.setAutoRequestFocus(false);
-        reorder();
     }
     
     // taking care of the location in screen
     private void reorder(){
-        //calculation the position based on order
         GraphicsEnvironment ge = 
             GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         Rectangle screen = gd.getDefaultConfiguration().getBounds();
-        xPos = (int)screen.getMaxX()-f.getWidth()-5;
-        yPos = (int)screen.getMaxY()-(f.getHeight()+5)*order-5;
+        int xmax = (int)screen.getMaxX(),ymax = (int)screen.getMaxY();
+        if (position.equalsIgnoreCase("bottomright"))
+            reorderBottomRight(xmax,ymax);
+        else if(position.equalsIgnoreCase("bottomleft"))
+            reorderBottomLeft(xmax,ymax);
+        else if(position.equalsIgnoreCase("topright"))
+            reorderTopRight(xmax,ymax);
+        else
+            reorderTopLeft(xmax,ymax);
+    }
+    private void reorderBottomRight(int xmax, int ymax){
+        xPos = xmax-f.getWidth()-X_PADDING;
+        yPos = ymax-(f.getHeight()+5)*order-Y_PADDING;
+        f.setLocation(xPos,yPos);
+    }
+    private void reorderTopRight(int xmax, int ymax){
+        xPos = (f.getWidth()+5)*order+X_PADDING;
+        yPos = (f.getHeight()+5)*order+Y_PADDING;
+        f.setLocation(xPos,yPos);
+    }
+    private void reorderBottomLeft(int xmax, int ymax){
+        xPos = X_PADDING;
+        yPos = ymax-(f.getHeight()+5)*order-Y_PADDING;
+        f.setLocation(xPos,yPos);
+    }
+    private void reorderTopLeft(int xmax, int ymax){
+        System.out.println(order);
+        xPos = X_PADDING;
+        yPos = Y_PADDING + (f.getHeight()+5)*(order-1); //this is not OK
         f.setLocation(xPos,yPos);
     }
     public void setOrder(int neworder){
+        if(neworder == 0)
+            neworder = 1;
         order = neworder;
         reorder();
     }
     
     // showing and hiding notification
-    public void showUp(boolean autokill) {
+    public void showUp() {
         /*
         clip.play();
         */
         reorder();
-        if(autokill){
-            Thread t = new Thread(new AutoKiller());
-            t.start();
-        }
         f.setResizable(false);
         try{
             fadeIn(f);
@@ -132,15 +159,6 @@ public class Notification extends JPanel{
         try {
             if(f != null){
                 this.fadeOut(f);
-                if(allNotification == null)
-                    return;
-                int myplace = allNotification.indexOf(this);
-                if(myplace < allNotification.size()-1){
-                    for(int i = myplace+1; i < allNotification.size(); i++){
-                        allNotification.elementAt(i).setOrder(i);
-                    }
-                }
-                allNotification.remove(this);
             }else
                 return;
         } catch (InterruptedException ex) {f.setVisible(false);}
@@ -171,15 +189,4 @@ public class Notification extends JPanel{
     // getters
     public int getxPos(){return xPos;}
     public int getyPos(){return yPos;}
-    
-    // inner classes
-    private class AutoKiller implements Runnable {
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(TTL*1000);
-            } catch (InterruptedException ex) {ex.printStackTrace();}
-            dismiss();
-        }
-    }
 }

@@ -6,8 +6,8 @@ public class UIManager {
     public UIManager(){
         //ss = new SetupScreen(this);
         //ss.setVisible(true);
-        nm = new NotificationManager();
-        nm.notify("danger","Sorry!","I made you lose money xD");
+        nm = new NotificationManager("topleft");
+        nm.notify("danger","Sorry!","0123456789012345678901234567890123456789");
         nm.notify("warning", "Warning", "Bitcoin is not moving!");
         nm.notify("success","Bought!","Bitcons bought at high price!");
         
