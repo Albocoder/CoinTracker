@@ -1,4 +1,5 @@
 package GUI;
+import albocoder.*;
 
 public class UIManager {
     SetupScreen ss;
@@ -6,7 +7,7 @@ public class UIManager {
     public UIManager(){
         //ss = new SetupScreen(this);
         //ss.setVisible(true);
-        nm = new NotificationManager("topright");
+        nm = new NotificationManager("topright",Notification.ANIMATION_FADING);
         nm.notifyNoAutokill("success","New Coin!","Bitcons Gold is out!");
         nm.notifyNoAutokill("warning", "Start early!", "Please start mining BTG asap!");
         nm.notifyNoAutokill("danger","BTG falling!","BTG has fallen by 70%!");
