@@ -105,36 +105,40 @@ public class Notification extends JPanel{
         GraphicsEnvironment ge = 
             GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
+        Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gd.getDefaultConfiguration());
         Rectangle screen = gd.getDefaultConfiguration().getBounds();
-        int xmax = (int)screen.getMaxX(),ymax = (int)screen.getMaxY();
+        Rectangle safeBounds = new Rectangle(screen);
+        safeBounds.x += insets.left;
+        safeBounds.y += insets.top;
+        safeBounds.width -= (insets.left + insets.right);
+        safeBounds.height -= (insets.top + insets.bottom);
         if (position.equalsIgnoreCase("bottomright"))
-            reorderBottomRight(xmax,ymax);
+            reorderBottomRight(safeBounds);
         else if(position.equalsIgnoreCase("bottomleft"))
-            reorderBottomLeft(xmax,ymax);
+            reorderBottomLeft(safeBounds);
         else if(position.equalsIgnoreCase("topright"))
-            reorderTopRight(xmax,ymax);
+            reorderTopRight(safeBounds);
         else
-            reorderTopLeft(xmax,ymax);
+            reorderTopLeft(safeBounds);
     }
-    private void reorderBottomRight(int xmax, int ymax){
-        xPos = xmax-f.getWidth()-X_PADDING;
-        yPos = ymax-(f.getHeight()+5)*order-Y_PADDING;
+    private void reorderBottomRight(Rectangle screen){
+        xPos = screen.x+screen.width-f.getWidth()-X_PADDING;
+        yPos = (screen.y+screen.height)-(f.getHeight()+5)*order-Y_PADDING;
         f.setLocation(xPos,yPos);
     }
-    private void reorderTopRight(int xmax, int ymax){
-        xPos = (f.getWidth()+5)*order+X_PADDING;
-        yPos = (f.getHeight()+5)*order+Y_PADDING;
+    private void reorderTopRight(Rectangle screen){
+        xPos = screen.x+screen.width-f.getWidth()-X_PADDING;
+        yPos = screen.y+(f.getHeight()+5)*(order-1)+Y_PADDING;
         f.setLocation(xPos,yPos);
     }
-    private void reorderBottomLeft(int xmax, int ymax){
-        xPos = X_PADDING;
-        yPos = ymax-(f.getHeight()+5)*order-Y_PADDING;
+    private void reorderBottomLeft(Rectangle screen){
+        xPos = screen.x+X_PADDING;
+        yPos = (screen.y+screen.height)-(f.getHeight()+5)*order-Y_PADDING;
         f.setLocation(xPos,yPos);
     }
-    private void reorderTopLeft(int xmax, int ymax){
-        System.out.println(order);
-        xPos = X_PADDING;
-        yPos = Y_PADDING + (f.getHeight()+5)*(order-1); //this is not OK
+    private void reorderTopLeft(Rectangle screen){
+        xPos = screen.x+X_PADDING;
+        yPos = screen.y+(f.getHeight()+5)*(order-1)+Y_PADDING; //this is not OK
         f.setLocation(xPos,yPos);
     }
     public void setOrder(int neworder){
