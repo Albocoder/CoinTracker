@@ -4,31 +4,21 @@ import albocoder.*;
 public class UIManager {
     SetupScreen ss;
     NotificationManager nm;
-    public UIManager(){
+    public UIManager(String notification_location, String animation){
         //ss = new SetupScreen(this);
-        //ss.setVisible(true);
-        nm = new NotificationManager("topright",Notification.ANIMATION_FADING);
-        nm.notifyNoAutokill("success","New Coin!","Bitcons Gold is out!");
-        nm.notifyNoAutokill("warning", "Start early!", "Please start mining BTG asap!");
-        nm.notifyNoAutokill("danger","BTG falling!","BTG has fallen by 70%!");
-        nm = new NotificationManager("topleft");
-        nm.notifyNoAutokill("success","New Coin!","Bitcons Gold is out!");
-        nm.notifyNoAutokill("warning", "Start early!", "Please start mining BTG asap!");
-        nm.notifyNoAutokill("danger","BTG falling!","BTG has fallen by 70%!");
-        nm = new NotificationManager("bottomleft");
-        nm.notifyNoAutokill("success","New Coin!","Bitcons Gold is out!");
-        nm.notifyNoAutokill("warning", "Start early!", "Please start mining BTG asap!");
-        nm.notifyNoAutokill("danger","BTG falling!","BTG has fallen by 70%!");
-        nm = new NotificationManager("bottomright");
-        nm.notifyNoAutokill("success","New Coin!","Bitcons Gold is out!");
-        nm.notifyNoAutokill("warning", "Start early!", "Please start mining BTG asap!");
-        nm.notifyNoAutokill("danger","BTG falling!","BTG has fallen by 70%!");
+        nm = new NotificationManager(notification_location,animation);
+    }
+    public UIManager(){
+        this(Notification.BOTTOM_RIGHT,Notification.ANIMATION_FADING);
     }
     
     public void terminate(int code){
         System.exit(code);
     }
-    public void Notify(){
-        
+    public void Notify(String type,String title,String msg,int duration){
+        nm.notify(type, title, msg,duration);
+    }
+    public void Notify(String type,String title,String msg){
+        nm.notify(type, title, msg);
     }
 }
