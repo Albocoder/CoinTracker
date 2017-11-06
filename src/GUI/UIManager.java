@@ -5,7 +5,7 @@ public class UIManager {
     SetupScreen ss;
     NotificationManager nm;
     public UIManager(String notification_location, String animation){
-        //ss = new SetupScreen(this);
+        ss = new SetupScreen(this);
         nm = new NotificationManager(notification_location,animation);
     }
     public UIManager(){
