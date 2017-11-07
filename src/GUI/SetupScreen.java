@@ -4,14 +4,14 @@ import javax.swing.*;
 
 public class SetupScreen extends JFrame{
     GraphPanel gp;
-    RulePanel rp;
+    RuleUI rp;
     JButton settings;
     UIManager theBoss;
     
     SetupScreen(UIManager b){
         theBoss = b;
         settings = new JButton("set");
-        rp = new RulePanel();
+        rp = new RuleUI();
         add(rp);
         pack();
         setVisible(true);
