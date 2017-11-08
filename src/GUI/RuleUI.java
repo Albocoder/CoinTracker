@@ -8,7 +8,7 @@ import java.awt.event.*;
 public class RuleUI extends JPanel {            
     private JButton ruleAdd,ruleDelete,ruleDisable;
     private RulePanel rulePanel;
-    private JPanel upperButtonsPanel;
+    private JPanel upperButtonsPanel,allRulesPanel;
     private JScrollPane allRulesPane;
     private final ImageIcon trashimg,editimg,playimg,pauseimg;
     
@@ -24,27 +24,22 @@ public class RuleUI extends JPanel {
     @SuppressWarnings("unchecked")                    
     private void initComponents() {
         allRulesPane = new JScrollPane();
+        allRulesPanel = new JPanel();
         rulePanel = new RulePanel();
         upperButtonsPanel = new JPanel();
         ruleDelete = new JButton();
         ruleDisable = new JButton();
         ruleAdd = new JButton();
+        allRulesPanel.setPreferredSize(new Dimension(rulePanel.getWidth()+30,rulePanel.getHeight()*5));
+        allRulesPane.setPreferredSize(new Dimension(rulePanel.getWidth()+30,100));
+        allRulesPane.setViewportView(allRulesPanel);
+        RulePanel p2 = new RulePanel();
         
-        GroupLayout rulePanelLayout = new GroupLayout(rulePanel);
-        rulePanel.setLayout(rulePanelLayout);
-        rulePanelLayout.setHorizontalGroup(
-            rulePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(rulePanelLayout.createSequentialGroup()
-                .addComponent(rulePanel)
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-        rulePanelLayout.setVerticalGroup(
-            rulePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addComponent(rulePanel)
-        );
-
-        allRulesPane.setViewportView(rulePanel);
+        allRulesPanel.add(rulePanel);
+        allRulesPanel.add( new RulePanel());
+        allRulesPanel.add( new RulePanel());
+        allRulesPanel.add( new RulePanel());
+        allRulesPanel.add( new RulePanel());
 
         ruleDelete.setText("Delete Rule");
 
@@ -99,15 +94,21 @@ public class RuleUI extends JPanel {
     }
     
     public void showRule(Rule r){
+        allRulesPanel.add(new RulePanel(r));
+    }
+    private void ruleDescriptionActionPerformed(ActionEvent evt) {
         
     }
+    
     private class RulePanel extends JPanel{
         private JCheckBox ruleCheckox;
         private JButton deleteBtn,editBtn;
         private JTextField ruleDescription;
         private JToggleButton ruleToggleActivation;
+        private JPanel wrapper;
 
-        private RulePanel() {
+        public RulePanel() {
+            wrapper = new JPanel();
             ruleCheckox = new JCheckBox();
             ruleDescription = new JTextField();
             editBtn = new JButton();
@@ -119,15 +120,16 @@ public class RuleUI extends JPanel {
             deleteBtn.setBackground(Color.WHITE);
             editBtn.setIcon(editimg);
             deleteBtn.setIcon(trashimg);
+            
             ruleToggleActivation.setBorder(null);
-            ruleToggleActivation.setBackground(new Color(0,0,0,1));
             ruleToggleActivation.setIcon(playimg);
             ruleToggleActivation.setToolTipText("Disable the rule");
             ruleCheckox.addActionListener(this::ruleCheckoxActionPerformed);
             ruleDescription.addActionListener(this::ruleDescriptionActionPerformed);
             ruleToggleActivation.addActionListener(this::ruleToggleActionPerformed);
-            GroupLayout rulePanelLayout = new GroupLayout(rulePanel);
-            rulePanel.setLayout(rulePanelLayout);
+            
+            GroupLayout rulePanelLayout = new GroupLayout(wrapper);
+            wrapper.setLayout(rulePanelLayout);
             rulePanelLayout.setHorizontalGroup(
                 rulePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addGroup(rulePanelLayout.createSequentialGroup()
@@ -155,17 +157,22 @@ public class RuleUI extends JPanel {
                             .addComponent(editBtn, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)))
                     .addContainerGap(10, Short.MAX_VALUE))
             );
+            add(wrapper);
+        }
+
+        private RulePanel(Rule r) {
+            this();
         }
         
         ///////////////////////// ACTION EVENT FUNCTIONS ///////////////////////
         private void ruleToggleActionPerformed(ActionEvent evt) {                                            
             if (ruleToggleActivation.isSelected()){
                 ruleToggleActivation.setIcon(pauseimg);
-                ruleToggleActivation.setToolTipText("Disable the rule");
+                ruleToggleActivation.setToolTipText("Pause the rule");
             }
             else{
                 ruleToggleActivation.setIcon(playimg);
-                ruleToggleActivation.setToolTipText("Enable the rule");
+                ruleToggleActivation.setToolTipText("Run the rule");
             }
         }
         private void ruleCheckoxActionPerformed(ActionEvent evt) {                                           
