@@ -1,57 +1,63 @@
 package GUI;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
+import GUI.RuleUI.DeleteHandler;
+import cointracker.Rule;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.LayoutStyle;
 
-public class RulePanel extends JPanel {            
-    private JButton deleteBtn,editBtn,ruleAdd,ruleDelete,ruleDisable;
+class RulePanel extends JPanel{
+    public static final String CURR_DIR = System.getProperty("user.dir");
+    public static final ImageIcon 
+    editimg = new ImageIcon(CURR_DIR+"/img/edit.png"),
+    editimg_pressed = new ImageIcon(CURR_DIR+"/img/edit_pressed.png"),
+    playimg = new ImageIcon(CURR_DIR+"/img/play.png"),
+    pauseimg = new ImageIcon(CURR_DIR+"/img/pause.png"),
+    closeimg = new ImageIcon(CURR_DIR+"/img/delete.png"),
+    closeimg_pressed = new ImageIcon(CURR_DIR+"/img/delete_pressed.png");
+
     private JCheckBox ruleCheckox;
-    private JPanel rulePanel,upperButtonsPanel;
-    private JScrollPane allRulesPane;
+    private JButton deleteBtn,editBtn;
     private JTextField ruleDescription;
     private JToggleButton ruleToggleActivation;
-    private ImageIcon trashimg,editimg,playimg,pauseimg;
-    
-    public RulePanel() {
-        trashimg = new ImageIcon(System.getProperty("user.dir")+"/img/trashbin.png");
-        editimg = new ImageIcon(System.getProperty("user.dir")+"/img/edit.png");
-        playimg = new ImageIcon(System.getProperty("user.dir")+"/img/play.png");
-        pauseimg = new ImageIcon(System.getProperty("user.dir")+"/img/pause.png");
-        initComponents();
-    }
+    private JPanel wrapper;
+    private Rule r;
+    private boolean selected, running, killed;
 
-    @SuppressWarnings("unchecked")                    
-    private void initComponents() {
-        allRulesPane = new JScrollPane();
-        rulePanel = new JPanel();
+    private RulePanel() {
+        wrapper = new JPanel();
         ruleCheckox = new JCheckBox();
         ruleDescription = new JTextField();
         editBtn = new JButton();
         deleteBtn = new JButton();
         ruleToggleActivation = new JToggleButton();
-        upperButtonsPanel = new JPanel();
-        ruleDelete = new JButton();
-        ruleDisable = new JButton();
-        ruleAdd = new JButton();
-
-        ruleCheckox.addActionListener(this::ruleCheckoxActionPerformed);
-        ruleDescription.addActionListener(this::ruleDescriptionActionPerformed);
-        ruleToggleActivation.addActionListener(this::ruleToggleActionPerformed);
-        
         editBtn.setBorder(null);
         deleteBtn.setBorder(null);
         editBtn.setBackground(Color.WHITE);
         deleteBtn.setBackground(Color.WHITE);
         editBtn.setIcon(editimg);
-        deleteBtn.setIcon(trashimg);
+        deleteBtn.setIcon(closeimg);
+        editBtn.addMouseListener(new EditHandler());
+        
+
         ruleToggleActivation.setBorder(null);
-        ruleToggleActivation.setBackground(new Color(0,0,0,1));
-        ruleToggleActivation.setIcon(playimg);
-        
-        
-        GroupLayout rulePanelLayout = new GroupLayout(rulePanel);
-        rulePanel.setLayout(rulePanelLayout);
+        ruleToggleActivation.setIcon(pauseimg);
+        ruleToggleActivation.setToolTipText("Pause the rule");
+        ruleCheckox.addActionListener(this::ruleCheckoxActionPerformed);
+        ruleDescription.addActionListener(this::ruleDescriptionActionPerformed);
+        ruleToggleActivation.addActionListener(this::ruleToggleActionPerformed);
+
+        GroupLayout rulePanelLayout = new GroupLayout(wrapper);
+        wrapper.setLayout(rulePanelLayout);
         rulePanelLayout.setHorizontalGroup(
             rulePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
             .addGroup(rulePanelLayout.createSequentialGroup()
@@ -59,7 +65,7 @@ public class RulePanel extends JPanel {
                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ruleDescription, GroupLayout.PREFERRED_SIZE, 290, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ruleToggleActivation, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
+                .addComponent(ruleToggleActivation, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(deleteBtn, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
@@ -79,72 +85,59 @@ public class RulePanel extends JPanel {
                         .addComponent(editBtn, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(10, Short.MAX_VALUE))
         );
-
-        allRulesPane.setViewportView(rulePanel);
-
-        ruleDelete.setText("Delete Rule");
-
-        ruleDisable.setText("Disable Rule");
-
-        GroupLayout upperButtonsPanelLayout = new GroupLayout(upperButtonsPanel);
-        upperButtonsPanel.setLayout(upperButtonsPanelLayout);
-        upperButtonsPanelLayout.setHorizontalGroup(
-            upperButtonsPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(upperButtonsPanelLayout.createSequentialGroup()
-                .addContainerGap(32, Short.MAX_VALUE)
-                .addComponent(ruleDelete)
-                .addGap(30, 30, 30)
-                .addComponent(ruleDisable))
-        );
-        upperButtonsPanelLayout.setVerticalGroup(
-            upperButtonsPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(upperButtonsPanelLayout.createSequentialGroup()
-                .addGroup(upperButtonsPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                    .addComponent(ruleDelete)
-                    .addComponent(ruleDisable))
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-
-        ruleAdd.setText("Add Rule");
-
-        GroupLayout layout = new GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                    .addComponent(allRulesPane)
-                    .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(ruleAdd, GroupLayout.PREFERRED_SIZE, 110, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(upperButtonsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                    .addComponent(upperButtonsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ruleAdd, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(allRulesPane, GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        add(wrapper);
     }
-    
-    private void ruleCheckoxActionPerformed(ActionEvent evt) {                                           
-        // TODO add your handling code here:
-    }                                          
 
-    private void ruleDescriptionActionPerformed(ActionEvent evt) {                                            
-        // TODO add your handling code here:
+    public RulePanel(DeleteHandler h,Rule r) {
+        this();
+        deleteBtn.addMouseListener(h);
+        this.r = r;
+        populateComponents();
     }
+
+    private void populateComponents(){
+        if (r == null)  //this will populate the textarea with data of the rule
+            ruleDescription.setEditable(false);
+        // for example...
+        selected = false;
+        running = true;
+    }
+
+    ///////////////////////// ACTION EVENT FUNCTIONS ///////////////////////
     private void ruleToggleActionPerformed(ActionEvent evt) {                                            
-        if (ruleToggleActivation.isSelected())
-            ruleToggleActivation.setIcon(pauseimg);
-        else
+        if (ruleToggleActivation.isSelected()){
             ruleToggleActivation.setIcon(playimg);
+            ruleToggleActivation.setToolTipText("Run the rule");
+        }
+        else{
+            ruleToggleActivation.setIcon(pauseimg);
+            ruleToggleActivation.setToolTipText("Pause the rule");
+        }
+    }
+    private void ruleDescriptionActionPerformed(ActionEvent evt) {
+        
+    }
+    private void ruleCheckoxActionPerformed(ActionEvent evt) {
+        
+    }
+    private class EditHandler extends MouseAdapter{
+        @Override
+        public void mousePressed(MouseEvent e){
+            JButton b = (JButton)e.getComponent();
+            b.setIcon(editimg_pressed);
+        }
+        @Override
+        public void mouseReleased(MouseEvent e){
+            JButton b = (JButton)e.getComponent();
+            if (ruleDescription.isEditable()){
+                b.setIcon(editimg);
+                ruleDescription.setEditable(false);
+                // set up the new rule to run
+            }
+            else{
+                b.setIcon(editimg_pressed);
+                ruleDescription.setEditable(true);
+            }
+        }
     }
 }
