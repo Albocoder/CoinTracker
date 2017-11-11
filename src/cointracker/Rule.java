@@ -1,9 +1,7 @@
 package cointracker;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
+import Exceptions.MalformedRuleStringException;
 
 public class Rule {
     private final String TYPE_OF_CHECK;        // increase, decrease, price
@@ -14,7 +12,6 @@ public class Rule {
     private final String RTYPE;                // buy,sell,spot
     private final int REFRESH_INTERVAL;
     private final APIwrapper api;
-    private final ScheduledExecutorService scheduler;
     
     // keeping up with the rates
     private double currState;
@@ -33,12 +30,27 @@ public class Rule {
         api = new APIwrapper(RTYPE,COIN,CURR);
         currState = getCurrentState();
         newState = currState;
-        scheduler = Executors.newScheduledThreadPool(1);
     }
     
-    public void start(){
-        scheduler.scheduleAtFixedRate(new PeriodicChecker(),REFRESH_INTERVAL,
-                REFRESH_INTERVAL,TimeUnit.SECONDS);
+    public Rule(String toParse){
+        //TYPE_OF_CHECK = tc;
+        //REFRESH_INTERVAL = rint;
+        //if (a < 0)
+        //    a = -a;
+        //THRESH_AMOUNT = a;
+        //CMP_TYPE = ct;
+        //CURR = c1;
+        //COIN = c2;
+        //RTYPE = r;
+        try{
+            //parse and assign
+            //if(-1){
+            //    throw new MalformedRuleStringException();
+            //}
+        }
+        catch(Exception e){
+            throw new MalformedRuleStringException();
+        }
     }
     
     private double getCurrentState(){
@@ -46,7 +58,7 @@ public class Rule {
         return o.getJSONObject("data").getDouble("amount");
     }
     
-    private boolean checkRule(){
+    public boolean checkRule(){
         newState = getCurrentState();
         double val;
         
@@ -71,13 +83,13 @@ public class Rule {
             return val == THRESH_AMOUNT;
     }
     
-    private class PeriodicChecker implements Runnable{
-        @Override
-        public void run() {
-            boolean check = checkRule();
-            if (check){
-                // notify 
-            }
-        }
+    // GETTERS
+    public int getRefreshInterval(){return REFRESH_INTERVAL;}
+    
+    // TOSTRING OVERRIDE 
+    @Override
+    public String toString(){
+        return TYPE_OF_CHECK+":"+CMP_TYPE+":"+THRESH_AMOUNT+":"+CURR+":"+COIN
+                +":"+RTYPE+":"+REFRESH_INTERVAL;
     }
 }

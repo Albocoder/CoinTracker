@@ -118,18 +118,22 @@ public class RuleUI extends JFrame {
         showRule(null);//somehow like this although it must be first not last.
     }
     
+    
+    
+    
+    // PRIVATE CLASSES
     public class DeleteHandler extends MouseAdapter{
         @Override
         public void mousePressed(MouseEvent e){
             JButton b = (JButton)e.getComponent();
-            b.setIcon(RulePanel.closeimg_pressed);
+            b.setIcon(RulePanel.CLOSEIMG_PRESSED);
         }
         @Override
         public void mouseReleased(MouseEvent e){
             JButton b = (JButton)e.getComponent();
-            b.setIcon(RulePanel.closeimg);
-            RulePanel rp = (RulePanel)(b.getParent().getParent());
-            rp.setVisible(false);
+            b.setIcon(RulePanel.CLOSEIMG);
+            RulePanel target = (RulePanel)(b.getParent().getParent());
+            target.setVisible(false);
             //find it in the arraylist and remove it from there 
             //and stop it from running
         }
