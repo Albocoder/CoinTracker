@@ -26,7 +26,6 @@ class RulePanel extends JPanel{
     private JToggleButton ruleToggleActivation;
     private JPanel wrapper;
     private Rule r;
-    private boolean selected, running;
     private ScheduledExecutorService scheduler;
 
     private RulePanel() {
@@ -89,15 +88,16 @@ class RulePanel extends JPanel{
         deleteBtn.addMouseListener(h);
         this.r = r;
         populateComponents();
+        scheduler = Executors.newScheduledThreadPool(1);
         this.start();
     }
 
     private void populateComponents(){
-        if (r == null)  //this will populate the textarea with data of the rule
-            ruleDescription.setEditable(false);
-        // for example...
-        selected = false;
-        running = true;
+        if (r == null){  //this will populate the textarea with data of the rule
+            ruleDescription.setEditable(false); //not really this
+            ruleDescription.setText("NO-RULE");
+            
+        }
     }
     
     // Toggle button enable/disable
@@ -117,13 +117,13 @@ class RulePanel extends JPanel{
     }
     
     // RULE Routines
-    public void start(){
+    private void start(){
         if(scheduler != null && !scheduler.isShutdown())
             scheduler.shutdown();
         scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new PeriodicChecker(),r.getRefreshInterval(),
+        if (r != null)
+            scheduler.scheduleAtFixedRate(new PeriodicChecker(),r.getRefreshInterval(),
                 r.getRefreshInterval(),TimeUnit.SECONDS);
-        running = true;
     }
     public void pause(){
         if(scheduler == null)
@@ -131,11 +131,7 @@ class RulePanel extends JPanel{
         scheduler.shutdown();
     }
     public void stop(){
-        running = false;
-        if(scheduler == null)
-            return;
-        scheduler.shutdownNow();
-        scheduler = null;
+        pause();
     }
     public void checkRule(){
         boolean check = r.checkRule();
