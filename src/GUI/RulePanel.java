@@ -89,6 +89,7 @@ class RulePanel extends JPanel{
         deleteBtn.addMouseListener(h);
         this.r = r;
         populateComponents();
+        this.start();
     }
 
     private void populateComponents(){
@@ -117,7 +118,7 @@ class RulePanel extends JPanel{
     
     // RULE Routines
     public void start(){
-        if(!scheduler.isShutdown())
+        if(scheduler != null && !scheduler.isShutdown())
             scheduler.shutdown();
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(new PeriodicChecker(),r.getRefreshInterval(),

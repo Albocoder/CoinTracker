@@ -1,7 +1,7 @@
 package cointracker;
 
-import org.json.JSONObject;
 import Exceptions.MalformedRuleStringException;
+import org.json.JSONObject;
 
 public class Rule {
     private final String TYPE_OF_CHECK;        // increase, decrease, price
@@ -27,30 +27,31 @@ public class Rule {
         CURR = c1;
         COIN = c2;
         RTYPE = r;
+        testArgumentSanity();
         api = new APIwrapper(RTYPE,COIN,CURR);
         currState = getCurrentState();
         newState = currState;
     }
     
     public Rule(String toParse){
-        //TYPE_OF_CHECK = tc;
-        //REFRESH_INTERVAL = rint;
-        //if (a < 0)
-        //    a = -a;
-        //THRESH_AMOUNT = a;
-        //CMP_TYPE = ct;
-        //CURR = c1;
-        //COIN = c2;
-        //RTYPE = r;
-        try{
-            //parse and assign
-            //if(-1){
-            //    throw new MalformedRuleStringException();
-            //}
-        }
-        catch(Exception e){
+        String [] tokens = toParse.split(":");
+        if (tokens.length != 7)
             throw new MalformedRuleStringException();
-        }
+        TYPE_OF_CHECK = tokens[0];
+        CMP_TYPE = tokens[1];
+        THRESH_AMOUNT = Double.parseDouble(tokens[2]);
+        CURR = tokens[3];
+        COIN = tokens[4];
+        RTYPE = tokens[5];
+        REFRESH_INTERVAL = Integer.parseInt(tokens[6]);
+        testArgumentSanity();
+        api = new APIwrapper(RTYPE,COIN,CURR);
+        currState = getCurrentState();
+        newState = currState;
+    }
+    // sanity checker
+    private void testArgumentSanity(){
+        
     }
     
     private double getCurrentState(){
