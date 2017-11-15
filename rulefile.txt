@@ -1,0 +1,1 @@
+price:<=:6500:USD:BTC:spot:5

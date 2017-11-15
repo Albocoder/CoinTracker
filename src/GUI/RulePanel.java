@@ -3,6 +3,7 @@ package GUI;
 import Exceptions.MalformedRuleStringException;
 import GUI.RuleUI.DeleteHandler;
 import cointracker.Rule;
+import cointracker.RuleHandler;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.concurrent.*;
@@ -82,7 +83,6 @@ class RulePanel extends JPanel{
         );
         add(wrapper);
     }
-
     public RulePanel(DeleteHandler h,Rule r) {
         this();
         deleteBtn.addMouseListener(h);
@@ -91,31 +91,28 @@ class RulePanel extends JPanel{
         scheduler = Executors.newScheduledThreadPool(1);
         this.start();
     }
-
     private void populateComponents(){
-        if (r == null){  //this will populate the textarea with data of the rule
-            ruleDescription.setEditable(false); //not really this
-            ruleDescription.setText("NO-RULE");
-            
-        }
-    }
-    
-    // Toggle button enable/disable
-    public void disableToggleButton(){
-        if (ruleToggleActivation.isSelected())
-            ruleToggleActivation.setIcon(PAUSEIMG_GRAY);
+        ruleDescription.setEditable(false);
+        if (r == null)
+            ruleDescription.setText("NO-RULE (click and press enter to edit)");
         else
+            ruleDescription.setText(r.toString());
+    }
+    // Toggle button enable/disable
+    private void disableToggleButton(){
+        if (ruleToggleActivation.isSelected())
             ruleToggleActivation.setIcon(PLAYIMG_GRAY);
+        else
+            ruleToggleActivation.setIcon(PAUSEIMG_GRAY);
         ruleToggleActivation.setEnabled(false);
     }
-    public void enableToggleButton(){
+    private void enableToggleButton(){
         if (ruleToggleActivation.isSelected())
-            ruleToggleActivation.setIcon(PAUSEIMG);
-        else
             ruleToggleActivation.setIcon(PLAYIMG);
+        else
+            ruleToggleActivation.setIcon(PAUSEIMG);
         ruleToggleActivation.setEnabled(true);
     }
-    
     // RULE Routines
     private void start(){
         if(scheduler != null && !scheduler.isShutdown())
@@ -125,21 +122,41 @@ class RulePanel extends JPanel{
             scheduler.scheduleAtFixedRate(new PeriodicChecker(),r.getRefreshInterval(),
                 r.getRefreshInterval(),TimeUnit.SECONDS);
     }
-    public void pause(){
+    private void pause(){
         if(scheduler == null)
             return;
         scheduler.shutdown();
     }
-    public void stop(){
+    private void stop(){
         pause();
     }
-    public void checkRule(){
+    private void checkRule(){
         boolean check = r.checkRule();
         if (check){
             // notify 
         }
+        System.out.print("checked\n");
     }
-
+    
+    // PUBLIC METHODS
+    //disabler
+    public void disableRule(){
+        if (!ruleToggleActivation.isSelected()){
+            this.stop();
+            ruleToggleActivation.setIcon(PLAYIMG);
+            ruleToggleActivation.setToolTipText("Run the rule");
+        }
+    }
+    public void disableRuleIfSelected(){
+        if (this.isChecked())
+            this.disableRule();
+    }
+    
+    // accessors and modifiers
+    public Rule getRule(){return r;}
+    public boolean isChecked(){return ruleCheckox.isSelected();}
+    public void setChecked(boolean c){ruleCheckox.setSelected(c);}
+    
     ///////////////////////// ACTION EVENT FUNCTIONS ///////////////////////
     private void ruleToggleActionPerformed(ActionEvent evt) {                                            
         if (ruleToggleActivation.isSelected()){
@@ -157,15 +174,21 @@ class RulePanel extends JPanel{
         if (ruleDescription.isEditable()){
             ruleDescription.setEditable(false);
             if(!r.toString().equals(ruleDescription.getText())){
-                disableToggleButton();
                 this.stop();
                 try{
-                    r = new Rule(ruleDescription.getText());
-                    enableToggleButton();
-                    if(ruleToggleActivation.isSelected())
-                        this.start();
+                    Rule newr = new Rule(ruleDescription.getText());
+                    new RuleHandler().editRule(r, newr);
+                    r = newr;
                 }catch(MalformedRuleStringException mrse){}
             }
+            if(!ruleToggleActivation.isSelected())
+                this.start();
+            enableToggleButton();
+        }
+        else{
+            ruleDescription.setEditable(true);
+            disableToggleButton();
+            this.stop();
         }
     }
     private void ruleCheckoxActionPerformed(ActionEvent evt) {

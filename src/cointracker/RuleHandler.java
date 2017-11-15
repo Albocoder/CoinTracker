@@ -1,17 +1,14 @@
 package cointracker;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintWriter;
+import Exceptions.MalformedRuleStringException;
+import java.io.*;
 import java.util.ArrayList;
 
 public class RuleHandler {
     //global constants
     public static final String DEFAULT_FILE = "rulefile.txt";
     
-    private static ArrayList<Rule> rulez;
+    private static ArrayList<Rule> rulez = null;
     private String rulezfname = DEFAULT_FILE;
     
     public RuleHandler(String fname){
@@ -32,23 +29,31 @@ public class RuleHandler {
             }
         } catch (IOException ex) {} 
     }
+    
     private synchronized void readRules() {
-        try {
-            try (ObjectInputStream input = new ObjectInputStream(
-                    new FileInputStream(rulezfname))) {
-                rulez = (ArrayList<Rule>)input.readObject();
-                input.close();
+        if(rulez == null)
+            rulez = new ArrayList<>();
+        else
+            rulez.clear();
+        try (BufferedReader br = new BufferedReader (new FileReader(rulezfname))) {
+            String line = "";
+            while((line = br.readLine())!=null){
+                try{
+                    rulez.add(new Rule(line));
+                }catch(MalformedRuleStringException e){}
             }
-        } catch (IOException | ClassNotFoundException ex) {rulez = new ArrayList();} 
+        } catch (IOException ex){}
     }
     public ArrayList<Rule> getRules(){return rulez;}
     
-    // TODO: test logic for these
     public synchronized void editRule(Rule oldr,Rule newr){
         deleteRule(oldr);
         rulez.add(newr);
     }
     public synchronized void deleteRule(Rule target){
         rulez.remove(target);
+    }
+    public synchronized void addRule(Rule newr){
+        rulez.add(newr);
     }
 }

@@ -1,12 +1,15 @@
 package GUI;
 
 import cointracker.Rule;
+import cointracker.RuleHandler;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
 public class RuleUI extends JFrame {
+    // Rule Handler
+    RuleHandler rh;
     // stuff in the panel
     private JButton ruleAdd,ruleDelete,ruleDisable;
     private ArrayList<RulePanel> rulePanels;
@@ -17,6 +20,7 @@ public class RuleUI extends JFrame {
     private final DeleteHandler terminator;
     
     public RuleUI() {
+        rh = new RuleHandler();
         fullWrapper = new JPanel();
         terminator = new DeleteHandler();
         initComponents();
@@ -35,11 +39,12 @@ public class RuleUI extends JFrame {
         ruleDisable = new JButton();
         ruleAdd = new JButton();
         
-        allRulesPanel.setPreferredSize(new Dimension(400,500));//must be dynamic
-        allRulesPanel.add(new RulePanel(terminator,null));
-        allRulesPanel.add(new RulePanel(terminator,null));
-        allRulesPanel.add(new RulePanel(terminator,null));
-        allRulesPanel.add(new RulePanel(terminator,null));
+        for(Rule r: rh.getRules())
+            rulePanels.add(new RulePanel(terminator,r));
+        
+        for(RulePanel rpan: rulePanels)
+            allRulesPanel.add(rpan);
+        resizeRulesPanel();
         
         allRulesPane.setBorder(null); 
         allRulesPane.setPreferredSize(new Dimension(440,250));
@@ -56,11 +61,13 @@ public class RuleUI extends JFrame {
         ruleDelete.setText("Delete Rule");
         ruleDelete.setBackground(Color.RED);
         ruleDelete.setFocusPainted(false);
+        ruleDelete.addActionListener(this::deleteSelected);
         
         ruleDisable.setText("Disable Rule");
         ruleDisable.setBackground(Color.ORANGE);
         ruleDisable.setFocusPainted(false);
-        
+        ruleDisable.addActionListener(this::disableSelected);
+                
         fullWrapper.setBackground(Color.BLUE);
         fullWrapper.setPreferredSize(new Dimension(465,300));
         
@@ -110,17 +117,44 @@ public class RuleUI extends JFrame {
         );
     }
     
-    public void showRule(Rule r){
-        allRulesPanel.add(new RulePanel(terminator,r));
+    private void ruleDescriptionActionPerformed(ActionEvent evt) {
+        addRulePanel(null);//somehow like this although it must be first not last.
+    }
+    private void disableSelected(ActionEvent e){
+        for (RulePanel rpan:rulePanels){
+            if(rpan.isChecked()){
+                rpan.disableRule();
+                rpan.setChecked(false);
+            }
+        }
+    }   
+    private void deleteSelected(ActionEvent e){
+        for (RulePanel rpan:rulePanels)
+            if (rpan.isChecked()){
+                deleteRulePanel(rpan);
+                break;
+            }
+    }
+    private void deleteRulePanel(RulePanel target){
+        target.setVisible(false);
+        target.disableRule();
+        rh.deleteRule(target.getRule());
+        rulePanels.remove(target);
+        allRulesPanel.remove(target);
+        resizeRulesPanel();
         revalidate();
     }
-    private void ruleDescriptionActionPerformed(ActionEvent evt) {
-        showRule(null);//somehow like this although it must be first not last.
+    private void addRulePanel(Rule ru){
+        RulePanel target = new RulePanel(terminator,ru);
+        rh.addRule(target.getRule());
+        rulePanels.add(target);
+        allRulesPanel.add(target);
+        resizeRulesPanel();
+        revalidate();
     }
-    
-    
-    
-    
+    private void resizeRulesPanel(){
+        allRulesPanel.setPreferredSize(new Dimension(400,65*rh.getRules().size()));
+    }
     // PRIVATE CLASSES
     public class DeleteHandler extends MouseAdapter{
         @Override
@@ -133,9 +167,7 @@ public class RuleUI extends JFrame {
             JButton b = (JButton)e.getComponent();
             b.setIcon(RulePanel.CLOSEIMG);
             RulePanel target = (RulePanel)(b.getParent().getParent());
-            target.setVisible(false);
-            //find it in the arraylist and remove it from there 
-            //and stop it from running
+            deleteRulePanel(target);
         }
     }
 }

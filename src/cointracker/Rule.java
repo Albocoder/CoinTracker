@@ -41,6 +41,8 @@ public class Rule {
     }
     
     public Rule(String toParse){
+        if (toParse == null)
+            throw new MalformedRuleStringException();
         String [] tokens = toParse.split(":");
         if (tokens.length != 7)
             throw new MalformedRuleStringException();
