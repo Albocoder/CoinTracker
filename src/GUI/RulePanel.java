@@ -2,6 +2,7 @@ package GUI;
 
 import Exceptions.MalformedRuleStringException;
 import GUI.RuleUI.DeleteHandler;
+import albocoder.Notification;
 import cointracker.Rule;
 import cointracker.RuleHandler;
 import java.awt.*;
@@ -130,12 +131,18 @@ class RulePanel extends JPanel{
     private void stop(){
         pause();
     }
+    // Notification Mesage composer(s)
+    private String composeRuleCheckMessage(){
+        return r.getCoin()+" "+r.getRtype()+" price is "+r.getCmpType()+r.getAmount();
+    }
+    
+    // Runs all the time 
     private void checkRule(){
         boolean check = r.checkRule();
         if (check){
-            // notify 
+            SingletonNotificationManager snm = new SingletonNotificationManager();
+            snm.nm.notify(Notification.TYPE_SUCCESS,"Rule match!",composeRuleCheckMessage());
         }
-        System.out.print("checked\n");
     }
     
     // PUBLIC METHODS

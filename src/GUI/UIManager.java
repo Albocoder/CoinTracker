@@ -2,14 +2,15 @@ package GUI;
 import albocoder.*;
 
 public class UIManager {
-    SetupScreen ss;
-    RuleUI rp;
-    NotificationManager nm;
+    private static SetupScreen ss;
+    private static RuleUI rp;
+    private static NotificationManager nm;
+    
     public UIManager(String notification_location, String animation){
         rp = new RuleUI();
         rp.setVisible(true);
         //ss = new SetupScreen(this);
-        nm = new NotificationManager(notification_location,animation);
+        this.nm = new SingletonNotificationManager(notification_location,animation).nm;
     }
     public UIManager(){
         this(Notification.BOTTOM_RIGHT,Notification.ANIMATION_FADING);

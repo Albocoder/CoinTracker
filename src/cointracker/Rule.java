@@ -86,6 +86,8 @@ public class Rule {
     
     private double getCurrentState(){
         JSONObject o = api.getRates();
+        if (o == null)
+            return currState;
         return o.getJSONObject("data").getDouble("amount");
     }
     
@@ -131,6 +133,11 @@ public class Rule {
     
     // GETTERS
     public int getRefreshInterval(){return REFRESH_INTERVAL;}
+    public String getCurr(){return CURR;}
+    public String getRtype(){return RTYPE;}
+    public String getCoin(){return COIN;}
+    public double getAmount(){return THRESH_AMOUNT;}
+    public String getCmpType(){return CMP_TYPE;}
     
     // TOSTRING OVERRIDE 
     @Override

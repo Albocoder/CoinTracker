@@ -1,5 +1,6 @@
 package GUI;
 
+import static GUI.RulePanel.CURR_DIR;
 import cointracker.Rule;
 import cointracker.RuleHandler;
 import java.awt.*;
@@ -26,7 +27,6 @@ public class RuleUI extends JFrame {
         initComponents();
         add(fullWrapper);
         pack();
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);    // temporary
     }
 
     @SuppressWarnings("unchecked")                    
@@ -115,8 +115,56 @@ public class RuleUI extends JFrame {
                 .addComponent(allRulesPane, GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
                 .addContainerGap())
         );
+        this.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                minimizeToTray();
+            }
+        });
     }
-    
+    private void minimizeToTray(){
+        if (!SystemTray.isSupported()) {
+            System.out.println("SystemTray is not supported"); // do smth different like nitify
+            return;
+        }
+        final PopupMenu popup = new PopupMenu();
+        final TrayIcon trayIcon = new TrayIcon(
+                Toolkit.getDefaultToolkit().createImage(CURR_DIR+"/img/icon.png"));
+        final SystemTray tray = SystemTray.getSystemTray();
+       
+        // Create a pop-up menu components
+        MenuItem aboutItem = new MenuItem("About");
+        CheckboxMenuItem cb1 = new CheckboxMenuItem("Set auto size");
+        CheckboxMenuItem cb2 = new CheckboxMenuItem("Set tooltip");
+        Menu displayMenu = new Menu("Display");
+        MenuItem errorItem = new MenuItem("Error");
+        MenuItem warningItem = new MenuItem("Warning");
+        MenuItem infoItem = new MenuItem("Info");
+        MenuItem noneItem = new MenuItem("None");
+        MenuItem exitItem = new MenuItem("Exit");
+       
+        //Add components to pop-up menu
+        popup.add(aboutItem);
+        popup.addSeparator();
+        popup.add(cb1);
+        popup.add(cb2);
+        popup.addSeparator();
+        popup.add(displayMenu);
+        displayMenu.add(errorItem);
+        displayMenu.add(warningItem);
+        displayMenu.add(infoItem);
+        displayMenu.add(noneItem);
+        popup.add(exitItem);
+        exitItem.addActionListener((ActionEvent e) -> {
+            System.exit(0); //not really this to be done, first save the rules
+        });
+        trayIcon.setPopupMenu(popup);
+       
+        try {
+            tray.add(trayIcon);
+        } catch (AWTException e) {}
+    }
     private void ruleDescriptionActionPerformed(ActionEvent evt) {
         addRulePanel(null);//somehow like this although it must be first not last.
     }
