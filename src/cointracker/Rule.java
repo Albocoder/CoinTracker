@@ -26,6 +26,8 @@ public class Rule {
     private double currState;
     private double newState;
     
+    // cooldown for notifications
+    
     public Rule(String tc,int rint,double a,String ct,String c1, String c2, String r){
         TYPE_OF_CHECK = tc;
         REFRESH_INTERVAL = (rint<0?-rint:rint);
@@ -87,12 +89,15 @@ public class Rule {
     private double getCurrentState(){
         JSONObject o = api.getRates();
         if (o == null)
-            return currState;
+            return -1;
         return o.getJSONObject("data").getDouble("amount");
     }
     
     public boolean checkRule(){
         newState = getCurrentState();
+        if (newState == -1) //if user is offline
+            return false;
+        
         double val;
         
         if (TYPE_OF_CHECK.equalsIgnoreCase("increase"))

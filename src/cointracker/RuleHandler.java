@@ -7,20 +7,22 @@ import java.util.ArrayList;
 public class RuleHandler {
     //global constants
     public static final String DEFAULT_FILE = "rulefile.txt";
+    private static boolean STARTED = false;
     
     private static ArrayList<Rule> rulez = null;
     private String rulezfname = DEFAULT_FILE;
     
     public RuleHandler(String fname){
-        if (rulez == null){
-            rulez = new ArrayList();
-            rulezfname = fname;
-            readRules();
+        if (!STARTED){
+            restart(fname);
+            STARTED = true;
         }
     }
     public RuleHandler(){this(DEFAULT_FILE);}
     
     private synchronized void writeRules() {
+        if (rulez == null)
+            return;
         try {
             try (PrintWriter p = new PrintWriter(new FileOutputStream(rulezfname))) {
                 for (Rule r : rulez)
@@ -47,7 +49,7 @@ public class RuleHandler {
     public ArrayList<Rule> getRules(){return rulez;}
     
     public synchronized void editRule(Rule oldr,Rule newr){
-        deleteRule(oldr);
+        rulez.remove(oldr);
         rulez.add(newr);
     }
     public synchronized void deleteRule(Rule target){
@@ -55,5 +57,14 @@ public class RuleHandler {
     }
     public synchronized void addRule(Rule newr){
         rulez.add(newr);
+    }
+    public synchronized void shutdown(){
+        this.writeRules();
+        rulez = null;
+    }
+    public final synchronized void restart(String fname){
+        rulez = new ArrayList();
+        rulezfname = fname;
+        readRules();
     }
 }

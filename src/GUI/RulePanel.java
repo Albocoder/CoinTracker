@@ -29,8 +29,12 @@ class RulePanel extends JPanel{
     private JPanel wrapper;
     private Rule r;
     private ScheduledExecutorService scheduler;
+    
+    //about notifications 
+    private boolean notifyEnabled;
 
     private RulePanel() {
+        notifyEnabled = true;
         wrapper = new JPanel();
         ruleCheckox = new JCheckBox();
         ruleDescription = new JTextField();
@@ -139,9 +143,10 @@ class RulePanel extends JPanel{
     // Runs all the time 
     private void checkRule(){
         boolean check = r.checkRule();
-        if (check){
-            SingletonNotificationManager snm = new SingletonNotificationManager();
-            snm.nm.notify(Notification.TYPE_SUCCESS,"Rule match!",composeRuleCheckMessage());
+        if (check && notifyEnabled){
+            new SingletonNotificationManager().nm.
+                    notify(Notification.TYPE_SUCCESS,"Rule match!",
+                            composeRuleCheckMessage());
         }
     }
     
@@ -154,6 +159,13 @@ class RulePanel extends JPanel{
             ruleToggleActivation.setToolTipText("Run the rule");
         }
     }
+    public void enableRule(){
+        if (ruleToggleActivation.isSelected()){
+            this.start();
+            ruleToggleActivation.setIcon(PAUSEIMG);
+            ruleToggleActivation.setToolTipText("Pause the rule");
+        }
+    }
     public void disableRuleIfSelected(){
         if (this.isChecked())
             this.disableRule();
@@ -161,8 +173,10 @@ class RulePanel extends JPanel{
     
     // accessors and modifiers
     public Rule getRule(){return r;}
+    public boolean getNotification(){return notifyEnabled;}
     public boolean isChecked(){return ruleCheckox.isSelected();}
     public void setChecked(boolean c){ruleCheckox.setSelected(c);}
+    public void setNotification(boolean toSet){notifyEnabled = toSet;}
     
     ///////////////////////// ACTION EVENT FUNCTIONS ///////////////////////
     private void ruleToggleActionPerformed(ActionEvent evt) {                                            

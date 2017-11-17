@@ -19,11 +19,14 @@ public class RuleUI extends JFrame {
     // THE PANEL
     private final JPanel fullWrapper;
     private final DeleteHandler terminator;
+    //notifications logic
+    private boolean notificationsEnabled;
     
     public RuleUI() {
         rh = new RuleHandler();
         fullWrapper = new JPanel();
         terminator = new DeleteHandler();
+        notificationsEnabled = true;
         initComponents();
         add(fullWrapper);
         pack();
@@ -125,7 +128,9 @@ public class RuleUI extends JFrame {
     }
     private void minimizeToTray(){
         if (!SystemTray.isSupported()) {
-            System.out.println("SystemTray is not supported"); // do smth different like nitify
+            new SingletonNotificationManager().nm.notify("warning","Warning!","Can\'t minimize to tray, click again to close.");
+            this.setVisible(true);
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             return;
         }
         final PopupMenu popup = new PopupMenu();
@@ -134,30 +139,49 @@ public class RuleUI extends JFrame {
         final SystemTray tray = SystemTray.getSystemTray();
        
         // Create a pop-up menu components
+        MenuItem showItem = new MenuItem("Show");
         MenuItem aboutItem = new MenuItem("About");
-        CheckboxMenuItem cb1 = new CheckboxMenuItem("Set auto size");
-        CheckboxMenuItem cb2 = new CheckboxMenuItem("Set tooltip");
-        Menu displayMenu = new Menu("Display");
-        MenuItem errorItem = new MenuItem("Error");
-        MenuItem warningItem = new MenuItem("Warning");
-        MenuItem infoItem = new MenuItem("Info");
-        MenuItem noneItem = new MenuItem("None");
+        CheckboxMenuItem cb1 = new CheckboxMenuItem("Disable Notifications");
+        Menu displayMenu = new Menu("Action");
+        MenuItem pauseItem = new MenuItem("Pause All");
+        MenuItem runItem = new MenuItem("Run All");
         MenuItem exitItem = new MenuItem("Exit");
        
         //Add components to pop-up menu
-        popup.add(aboutItem);
+        popup.add(showItem);
         popup.addSeparator();
         popup.add(cb1);
-        popup.add(cb2);
         popup.addSeparator();
         popup.add(displayMenu);
-        displayMenu.add(errorItem);
-        displayMenu.add(warningItem);
-        displayMenu.add(infoItem);
-        displayMenu.add(noneItem);
+        displayMenu.add(pauseItem);
+        displayMenu.add(runItem);
+        popup.addSeparator();
+        popup.add(aboutItem);
         popup.add(exitItem);
+        
+        pauseItem.addActionListener((ActionEvent e)->{
+            for(RulePanel rpan: rulePanels)
+                rpan.disableRule();
+        });
+        pauseItem.addActionListener((ActionEvent e)->{
+            for(RulePanel rpan: rulePanels)
+                rpan.enableRule();
+        });
+        showItem.addActionListener((ActionEvent e)->{
+            this.setVisible(true);
+            tray.remove(trayIcon);
+        });
+        cb1.addItemListener((ItemEvent e) -> {
+            if(cb1.getState())
+                for(RulePanel rpan: rulePanels)
+                    rpan.setNotification(false);
+            else
+                for(RulePanel rpan: rulePanels)
+                    rpan.setNotification(true);
+        });
         exitItem.addActionListener((ActionEvent e) -> {
-            System.exit(0); //not really this to be done, first save the rules
+            rh.shutdown();
+            System.exit(0);
         });
         trayIcon.setPopupMenu(popup);
        
