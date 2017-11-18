@@ -19,14 +19,13 @@ public class RuleUI extends JFrame {
     // THE PANEL
     private final JPanel fullWrapper;
     private final DeleteHandler terminator;
-    //notifications logic
-    private boolean notificationsEnabled;
     
     public RuleUI() {
+        super("Cointracker");
         rh = new RuleHandler();
         fullWrapper = new JPanel();
         terminator = new DeleteHandler();
-        notificationsEnabled = true;
+        this.setResizable(false);
         initComponents();
         add(fullWrapper);
         pack();
@@ -128,16 +127,23 @@ public class RuleUI extends JFrame {
     }
     private void minimizeToTray(){
         if (!SystemTray.isSupported()) {
-            new SingletonNotificationManager().nm.notify("warning","Warning!","Can\'t minimize to tray, click again to close.");
+            SingletonNotificationManager.nm.notify("warning","Warning!","Can\'t minimize to tray, click again to close.");
             this.setVisible(true);
-            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.addWindowListener(new WindowAdapter()
+            {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    rh.shutdown();
+                    System.exit(0);
+                }
+            });
             return;
         }
         final PopupMenu popup = new PopupMenu();
         final TrayIcon trayIcon = new TrayIcon(
                 Toolkit.getDefaultToolkit().createImage(CURR_DIR+"/img/icon.png"));
         final SystemTray tray = SystemTray.getSystemTray();
-       
+        trayIcon.setToolTip("Cointracker");
         // Create a pop-up menu components
         MenuItem showItem = new MenuItem("Show");
         MenuItem aboutItem = new MenuItem("About");

@@ -11,6 +11,7 @@ import java.util.concurrent.*;
 import javax.swing.*;
 
 class RulePanel extends JPanel{
+    public static final int COOLDOWN_EMPTY_RUNS = 5;
     public static final String CURR_DIR = System.getProperty("user.dir");
     public static final ImageIcon 
     REFRESH = new ImageIcon(CURR_DIR+"/img/refresh.png"),
@@ -32,6 +33,7 @@ class RulePanel extends JPanel{
     
     //about notifications 
     private boolean notifyEnabled;
+    private int cooldownRuns;
 
     private RulePanel() {
         notifyEnabled = true;
@@ -53,7 +55,6 @@ class RulePanel extends JPanel{
         ruleToggleActivation.setBorder(null);
         ruleToggleActivation.setIcon(PAUSEIMG);
         ruleToggleActivation.setToolTipText("Pause the rule");
-        ruleCheckox.addActionListener(this::ruleCheckoxActionPerformed);
         ruleDescription.addActionListener(this::ruleDescriptionActionPerformed);
         ruleToggleActivation.addActionListener(this::ruleToggleActionPerformed);
 
@@ -92,8 +93,9 @@ class RulePanel extends JPanel{
         this();
         deleteBtn.addMouseListener(h);
         this.r = r;
-        populateComponents();
+        cooldownRuns = 0;
         scheduler = Executors.newScheduledThreadPool(1);
+        populateComponents();
         this.start();
     }
     private void populateComponents(){
@@ -144,9 +146,14 @@ class RulePanel extends JPanel{
     private void checkRule(){
         boolean check = r.checkRule();
         if (check && notifyEnabled){
-            new SingletonNotificationManager().nm.
+            if(cooldownRuns > 0){
+                cooldownRuns--;
+                return;
+            }
+            SingletonNotificationManager.nm.
                     notify(Notification.TYPE_SUCCESS,"Rule match!",
                             composeRuleCheckMessage());
+            cooldownRuns = COOLDOWN_EMPTY_RUNS;
         }
     }
     
@@ -211,9 +218,6 @@ class RulePanel extends JPanel{
             disableToggleButton();
             this.stop();
         }
-    }
-    private void ruleCheckoxActionPerformed(ActionEvent evt) {
-        
     }
     private class RefreshHandler extends MouseAdapter{
         @Override
