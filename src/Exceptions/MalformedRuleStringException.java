@@ -1,6 +1,6 @@
 package Exceptions;
 
-public class MalformedRuleStringException extends RuntimeException {
+public class MalformedRuleStringException extends Exception {
 
     public MalformedRuleStringException(String s) {
         super(s);

@@ -1,6 +1,5 @@
 package GUI;
 
-import static GUI.RulePanel.CURR_DIR;
 import cointracker.Rule;
 import cointracker.RuleHandler;
 import java.awt.*;
@@ -140,8 +139,9 @@ public class RuleUI extends JFrame {
             return;
         }
         final PopupMenu popup = new PopupMenu();
+        
         final TrayIcon trayIcon = new TrayIcon(
-                Toolkit.getDefaultToolkit().createImage(CURR_DIR+"/img/icon.png"));
+                Toolkit.getDefaultToolkit().createImage(ClassLoader.getSystemResource("icon.png")));
         final SystemTray tray = SystemTray.getSystemTray();
         trayIcon.setToolTip("Cointracker");
         // Create a pop-up menu components
@@ -224,7 +224,7 @@ public class RuleUI extends JFrame {
     }
     private void addRulePanel(Rule ru){
         RulePanel target = new RulePanel(terminator,ru);
-        rh.addRule(target.getRule());
+        rh.addRule(ru);
         rulePanels.add(target);
         allRulesPanel.add(target);
         resizeRulesPanel();

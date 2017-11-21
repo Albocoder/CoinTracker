@@ -10,7 +10,7 @@ public class RuleHandler {
     private static boolean STARTED = false;
     
     private static ArrayList<Rule> rulez = null;
-    private String rulezfname = DEFAULT_FILE;
+    private String rulezfname;
     
     public RuleHandler(String fname){
         if (!STARTED){
@@ -31,13 +31,14 @@ public class RuleHandler {
             }
         } catch (IOException ex) {} 
     }
-    
+    // TODO: Do something about saving the rules.
     private synchronized void readRules() {
         if(rulez == null)
             rulez = new ArrayList<>();
         else
             rulez.clear();
-        try (BufferedReader br = new BufferedReader (new FileReader(rulezfname))) {
+        InputStreamReader isr = new InputStreamReader(ClassLoader.getSystemResourceAsStream(rulezfname)); 
+        try (BufferedReader br = new BufferedReader (isr)) {
             String line = "";
             while((line = br.readLine())!=null){
                 try{

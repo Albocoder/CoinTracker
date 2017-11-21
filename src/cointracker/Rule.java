@@ -28,7 +28,7 @@ public class Rule {
     
     // cooldown for notifications
     
-    public Rule(String tc,int rint,double a,String ct,String c1, String c2, String r){
+    public Rule(String tc,int rint,double a,String ct,String c1, String c2, String r) throws MalformedRuleStringException{
         TYPE_OF_CHECK = tc;
         REFRESH_INTERVAL = (rint<0?-rint:rint);
         THRESH_AMOUNT = (a<0?-a:a);
@@ -42,7 +42,7 @@ public class Rule {
         newState = currState;
     }
     
-    public Rule(String toParse){
+    public Rule(String toParse) throws MalformedRuleStringException{
         if (toParse == null)
             throw new MalformedRuleStringException();
         String [] tokens = toParse.split(":");
@@ -65,12 +65,12 @@ public class Rule {
         newState = currState;
     }
     // sanity checker
-    private void testArgumentSanity(){
+    private void testArgumentSanity() throws MalformedRuleStringException{
         getAvailableCurrencies();
         if (!TYPE_OF_CHECK.equalsIgnoreCase("increase") 
                 && !TYPE_OF_CHECK.equalsIgnoreCase("decrease") 
                 && !TYPE_OF_CHECK.equalsIgnoreCase("price"))
-            throw new MalformedRuleStringException("checking only increase/decrease/price");
+            throw new MalformedRuleStringException("Checking only increase/decrease/price");
         
         if (!CMP_TYPE.equals("<") && !CMP_TYPE.equals("<=") 
                 && !CMP_TYPE.equals(">") && !CMP_TYPE.equals(">=") && !CMP_TYPE.equals("="))

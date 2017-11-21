@@ -1,5 +1,5 @@
 package GUI;
-import static GUI.RulePanel.CURR_DIR;
+
 import albocoder.*;
 import cointracker.CoinTracker;
 import java.awt.Image;
@@ -17,7 +17,7 @@ public final class UIManager {
     public UIManager(String notification_location, String animation){
         startSingleProgramServer();
         rp = new RuleUI();
-        Image image = Toolkit.getDefaultToolkit().createImage(CURR_DIR+"/img/icon.png");
+            Image image = Toolkit.getDefaultToolkit().createImage(ClassLoader.getSystemResource("icon.png"));
         rp.setIconImage(image);
         rp.setVisible(true);
         
