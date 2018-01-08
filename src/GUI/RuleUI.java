@@ -18,6 +18,8 @@ public class RuleUI extends JFrame {
     // THE PANEL
     private final JPanel fullWrapper;
     private final DeleteHandler terminator;
+    // for messages
+    private boolean notShownMinimizationWarning = true;
     
     public RuleUI() {
         super("Cointracker");
@@ -116,30 +118,36 @@ public class RuleUI extends JFrame {
                 .addComponent(allRulesPane, GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
                 .addContainerGap())
         );
-        this.addWindowListener(new WindowAdapter()
-        {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                minimizeToTray();
-            }
-        });
-    }
-    private void minimizeToTray(){
+        this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         if (!SystemTray.isSupported()) {
-            SingletonNotificationManager.nm.notify("warning","Warning!","Can\'t minimize to tray, click again to close.");
-            this.setVisible(true);
             this.addWindowListener(new WindowAdapter()
             {
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    rh.shutdown();
-                    System.exit(0);
+                    if (notShownMinimizationWarning){
+                        new SingletonNotificationManager().nm.notify("warning","Warning!","Can\'t minimize, click to close.");
+                        ((JFrame)e.getComponent()).setVisible(true);
+                        notShownMinimizationWarning = false;
+                    }
+                    else{
+                        rh.shutdown();
+                        System.exit(0);
+                    }
                 }
             });
-            return;
         }
+        else{
+            this.addWindowListener(new WindowAdapter(){
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    ((JFrame)e.getComponent()).setVisible(false);
+                    minimizeToTray();
+                }
+            });
+        }
+    }
+    private void minimizeToTray(){
         final PopupMenu popup = new PopupMenu();
-        
         final TrayIcon trayIcon = new TrayIcon(
                 Toolkit.getDefaultToolkit().createImage(ClassLoader.getSystemResource("icon.png")));
         final SystemTray tray = SystemTray.getSystemTray();
@@ -151,6 +159,7 @@ public class RuleUI extends JFrame {
         Menu displayMenu = new Menu("Action");
         MenuItem pauseItem = new MenuItem("Pause All");
         MenuItem runItem = new MenuItem("Run All");
+        MenuItem reportBugItem = new MenuItem("Report Bug");
         MenuItem exitItem = new MenuItem("Exit");
        
         //Add components to pop-up menu
@@ -162,6 +171,7 @@ public class RuleUI extends JFrame {
         displayMenu.add(pauseItem);
         displayMenu.add(runItem);
         popup.addSeparator();
+        popup.add(reportBugItem);
         popup.add(aboutItem);
         popup.add(exitItem);
         
@@ -189,6 +199,7 @@ public class RuleUI extends JFrame {
             rh.shutdown();
             System.exit(0);
         });
+        //TODO: reportBugItem,aboutItem
         trayIcon.setPopupMenu(popup);
        
         try {

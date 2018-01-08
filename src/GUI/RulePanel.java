@@ -11,7 +11,7 @@ import java.util.concurrent.*;
 import javax.swing.*;
 
 class RulePanel extends JPanel{
-    public static final int COOLDOWN_EMPTY_RUNS = 5;
+    public static final int COOLDOWN_EMPTY_RUNS = 2;
     public static final String CURR_DIR = System.getProperty("user.dir");
     public static final ImageIcon 
     REFRESH = new ImageIcon(ClassLoader.getSystemResource("refresh.png")),
@@ -213,7 +213,7 @@ class RulePanel extends JPanel{
                 else if(!r.toString().equals(ruleDescription.getText()))
                     switchRule();
             } catch (MalformedRuleStringException ex) { // ERROR saving null with no change
-                SingletonNotificationManager.nm.
+                new SingletonNotificationManager().nm.
                     notify(Notification.TYPE_DANGER,"Error!",ex.getMessage());
                 return;
             }
@@ -246,51 +246,3 @@ class RulePanel extends JPanel{
         }
     }
 }
-/* TODO
-Exception in thread "AWT-EventQueue-1" java.lang.NullPointerException
-	at albocoder.Notification.<init>(Notification.java:55)
-	at albocoder.NotificationManager.notify(NotificationManager.java:38)
-	at albocoder.NotificationManager.notify(NotificationManager.java:46)
-	at albocoder.NotificationManager.notify(NotificationManager.java:49)
-	at GUI.RulePanel.ruleDescriptionActionPerformed(RulePanel.java:217)
-	at javax.swing.JTextField.fireActionPerformed(JTextField.java:508)
-	at javax.swing.JTextField.postActionEvent(JTextField.java:721)
-	at javax.swing.JTextField$NotifyAction.actionPerformed(JTextField.java:836)
-	at javax.swing.SwingUtilities.notifyAction(SwingUtilities.java:1663)
-	at javax.swing.JComponent.processKeyBinding(JComponent.java:2882)
-	at javax.swing.JComponent.processKeyBindings(JComponent.java:2929)
-	at javax.swing.JComponent.processKeyEvent(JComponent.java:2845)
-	at java.awt.Component.processEvent(Component.java:6310)
-	at java.awt.Container.processEvent(Container.java:2236)
-	at java.awt.Component.dispatchEventImpl(Component.java:4889)
-	at java.awt.Container.dispatchEventImpl(Container.java:2294)
-	at java.awt.Component.dispatchEvent(Component.java:4711)
-	at java.awt.KeyboardFocusManager.redispatchEvent(KeyboardFocusManager.java:1954)
-	at java.awt.DefaultKeyboardFocusManager.dispatchKeyEvent(DefaultKeyboardFocusManager.java:806)
-	at java.awt.DefaultKeyboardFocusManager.preDispatchKeyEvent(DefaultKeyboardFocusManager.java:1074)
-	at java.awt.DefaultKeyboardFocusManager.typeAheadAssertions(DefaultKeyboardFocusManager.java:945)
-	at java.awt.DefaultKeyboardFocusManager.dispatchEvent(DefaultKeyboardFocusManager.java:771)
-	at java.awt.Component.dispatchEventImpl(Component.java:4760)
-	at java.awt.Container.dispatchEventImpl(Container.java:2294)
-	at java.awt.Window.dispatchEventImpl(Window.java:2746)
-	at java.awt.Component.dispatchEvent(Component.java:4711)
-	at java.awt.EventQueue.dispatchEventImpl(EventQueue.java:758)
-	at java.awt.EventQueue.access$500(EventQueue.java:97)
-	at java.awt.EventQueue$3.run(EventQueue.java:709)
-	at java.awt.EventQueue$3.run(EventQueue.java:703)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:80)
-	at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:90)
-	at java.awt.EventQueue$4.run(EventQueue.java:731)
-	at java.awt.EventQueue$4.run(EventQueue.java:729)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:80)
-	at java.awt.EventQueue.dispatchEvent(EventQueue.java:728)
-	at org.GNOME.Accessibility.AtkWrapper$5.dispatchEvent(AtkWrapper.java:700)
-	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:201)
-	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:116)
-	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:105)
-	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
-	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:93)
-	at java.awt.EventDispatchThread.run(EventDispatchThread.java:82)
-*/
