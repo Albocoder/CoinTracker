@@ -125,7 +125,7 @@ public class RuleUI extends JFrame {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     if (notShownMinimizationWarning){
-                        new SingletonNotificationManager().nm.notify("warning","Warning!","Can\'t minimize, click to close.");
+                        new SingletonNotificationManager().nm.notify("warning","Warning!","Can\'t minimize, click x to close.");
                         ((JFrame)e.getComponent()).setVisible(true);
                         notShownMinimizationWarning = false;
                     }
@@ -140,7 +140,6 @@ public class RuleUI extends JFrame {
             this.addWindowListener(new WindowAdapter(){
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    ((JFrame)e.getComponent()).setVisible(false);
                     minimizeToTray();
                 }
             });
@@ -151,6 +150,7 @@ public class RuleUI extends JFrame {
         final TrayIcon trayIcon = new TrayIcon(
                 Toolkit.getDefaultToolkit().createImage(ClassLoader.getSystemResource("icon.png")));
         final SystemTray tray = SystemTray.getSystemTray();
+        trayIcon.setImageAutoSize(true);
         trayIcon.setToolTip("Cointracker");
         // Create a pop-up menu components
         MenuItem showItem = new MenuItem("Show");
@@ -195,16 +195,29 @@ public class RuleUI extends JFrame {
                 for(RulePanel rpan: rulePanels)
                     rpan.setNotification(true);
         });
+        aboutItem.addActionListener((ActionEvent e) -> {
+            JOptionPane.showMessageDialog(this,
+                    "CoinTracker is an opensource project for Coinbase clients."
+                            + "\nAuthor: Erin \"Albocoder\" Avllazagaj\nVersion:"
+                            + " 1.0", "About",JOptionPane.INFORMATION_MESSAGE,
+                            new ImageIcon(Toolkit.getDefaultToolkit().
+                                    createImage(ClassLoader.
+                                            getSystemResource("icon.png"))));
+        });
+        reportBugItem.addActionListener((ActionEvent e) -> {
+            new SendBugReport();
+        });
         exitItem.addActionListener((ActionEvent e) -> {
             rh.shutdown();
             System.exit(0);
         });
         //TODO: reportBugItem,aboutItem
         trayIcon.setPopupMenu(popup);
-       
+        
+       this.setVisible(false);
         try {
             tray.add(trayIcon);
-        } catch (AWTException e) {}
+        } catch (AWTException e) {e.printStackTrace();}
     }
     private void ruleDescriptionActionPerformed(ActionEvent evt) {
         addRulePanel(null);//somehow like this although it must be first not last.
