@@ -7,6 +7,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -51,17 +54,15 @@ public class SendBugReport extends JFrame{
     }
     public void sendReport(ActionEvent e){
         try {
-            target = new URL("erin.avllazagaj.ug.bilkent.edu.tr/BugMailer/reportBug.php");
-            URLConnection con = target.openConnection();
-            HttpURLConnection http = (HttpURLConnection)con;
-            http.disconnect();
-            http.setRequestMethod("GET");
-            http.setRequestProperty("softname", "CoinTracker");
-            http.setRequestProperty("email", email.getText());
-            http.setRequestProperty("message", msg.getText());
-            http.connect();
+            target = new URL("http://localhost/BugMailer/reportBug.php?softname="
+                    + "CoinTracker&email="+URLEncoder.encode(email.getText(), "UTF-8")
+                    + "&message="+URLEncoder.encode(msg.getText(), "UTF-8"));
+            HttpURLConnection http = (HttpURLConnection)target.openConnection();
+//            String encoded = Base64.getEncoder().encodeToString(("username:password").getBytes(StandardCharsets.UTF_8));
+//            http.setRequestProperty("Authorization", "Basic "+encoded);
             BufferedReader br = new BufferedReader( new InputStreamReader(http.getInputStream()));
             String result = br.readLine();
+            System.out.println(result);
             JSONObject resp = new JSONObject(result);
             int err = resp.getInt("error");
             if(err == 0)

@@ -20,7 +20,6 @@ public final class UIManager {
             Image image = Toolkit.getDefaultToolkit().createImage(ClassLoader.getSystemResource("icon.png"));
         rp.setIconImage(image);
         rp.setVisible(true);
-        
         this.nm = new SingletonNotificationManager(notification_location,animation).nm;
         
     }
